@@ -14,6 +14,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
 from app.models.document import Document, DocumentStatus
+from app.models.embedding import Embedding
 from app.models.event import ProcessingEvent
 from app.models.extraction import Extraction, LineItem
 from app.models.page import Page
@@ -25,6 +26,7 @@ from app.services.ingest.detector import detect_file_type
 from app.services.ingest.storage import get_absolute_file_path
 from app.services.ocr.engine import extract_ocr_from_image, extract_ocr_from_multipage_tiff
 from app.services.pdf.extractor import extract_all_pdf_pages, inspect_pdf
+from app.services.search.embedder import get_embedder
 from app.services.spreadsheet.mapping import (
     heuristic_header_mapping,
     parse_rows_with_mapping,
@@ -307,6 +309,30 @@ async def process_document_sync(
                 duration_ms=validate_duration_ms,
             )
         )
+
+        # =====================================================================
+        # STAGE 4: VECTOR EMBEDDING GENERATION
+        # =====================================================================
+        try:
+            embedder = get_embedder()
+            for page in pages_to_create:
+                if page.raw_text and page.raw_text.strip():
+                    page_text = page.raw_text.strip()
+                    vector = await embedder.embed_text(page_text[:2000])
+                    db.add(
+                        Embedding(
+                            document_id=document.id,
+                            page_id=page.id,
+                            chunk_text=page_text[:2000],
+                            embedding=vector,
+                        )
+                    )
+        except Exception as emb_err:
+            logger.warning(
+                "Embedding generation skipped for doc %s (%s); continuing pipeline.",
+                document.id,
+                emb_err,
+            )
 
         # Final document state
         document.status = DocumentStatus.COMPLETED

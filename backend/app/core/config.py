@@ -24,6 +24,8 @@ class Settings(BaseSettings):
     # Security & Keys
     GEMINI_API_KEY: str = Field(default="", description="Google Gemini API key")
     GEMINI_MODEL: str = Field(default="gemini-2.5-flash", description="Gemini model name")
+    EMBEDDING_MODEL: str = Field(default="text-embedding-004", description="Embedding model name")
+    EMBEDDING_DIMENSIONS: int = Field(default=768, description="Dimensions for vector embeddings")
     LLM_TIMEOUT_SECONDS: float = Field(default=30.0, description="Timeout for LLM API calls")
 
     # Databases

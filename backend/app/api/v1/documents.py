@@ -12,6 +12,7 @@ from app.core.database import get_db_session
 from app.core.logging import logger
 from app.models.document import Document, DocumentStatus
 from app.models.extraction import Extraction
+from app.schemas.correction import CorrectionPayload
 from app.schemas.document import (
     DocumentDetailResponse,
     DocumentListResponse,
@@ -20,8 +21,10 @@ from app.schemas.document import (
     DocumentUploadItem,
     DocumentUploadResponse,
 )
+from app.services.correction.service import apply_manual_correction
 from app.services.ingest.detector import detect_file_type
 from app.services.ingest.storage import save_uploaded_file
+from app.services.verification.cross_verifier import find_and_verify_counterparts
 from app.workers.tasks import get_redis_progress, process_document_task
 
 router = APIRouter(prefix="/documents", tags=["documents"])
@@ -350,3 +353,60 @@ async def get_document_result(
             for issue in doc.validation_issues
         ],
     }
+
+
+@router.patch(
+    "/{document_id}/result",
+    summary="Submit manual corrections for extracted fields with audit logging and re-validation.",
+)
+async def patch_document_result(
+    document_id: uuid.UUID,
+    payload: CorrectionPayload,
+    db: AsyncSession = Depends(get_db_session),
+) -> dict:
+    """Update extracted invoice fields, persist audit history, and re-run deterministic validation."""
+    return await apply_manual_correction(document_id, payload, db)
+
+
+@router.post(
+    "/{document_id}/reprocess",
+    status_code=status.HTTP_202_ACCEPTED,
+    summary="Re-queue an existing document for background reprocessing.",
+)
+async def reprocess_document(
+    document_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db_session),
+) -> dict:
+    """Reset document status and trigger async pipeline reprocessing."""
+    doc = await db.get(Document, document_id)
+    if not doc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Document with ID {document_id} not found.",
+        )
+
+    doc.status = DocumentStatus.PENDING
+    doc.error_message = None
+    await db.commit()
+
+    task = process_document_task.delay(doc.id)
+
+    return {
+        "document_id": str(doc.id),
+        "status": doc.status.value,
+        "job_id": task.id if task else None,
+        "message": "Document re-queued for processing.",
+    }
+
+
+@router.get(
+    "/{document_id}/crossverify",
+    summary="Cross-verify this document against all candidate counterparts in the system.",
+)
+async def get_document_crossverify(
+    document_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db_session),
+) -> list[dict]:
+    """Find matching counterpart documents (PDF <-> Excel, PDF <-> PDF) and return reconciliation reports."""
+    reports = await find_and_verify_counterparts(document_id, db)
+    return [r.model_dump(mode="json") for r in reports]
