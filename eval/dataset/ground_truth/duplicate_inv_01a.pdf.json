@@ -1,0 +1,26 @@
+{
+  "filename": "duplicate_inv_01a.pdf",
+  "file_type": "pdf",
+  "is_valid": true,
+  "expected_status": "COMPLETED",
+  "expected_fields": {
+    "invoice_number": "INV-DUP-PRIMARY",
+    "supplier_name": "Acme Dual Services LLC",
+    "customer_name": "Client Target",
+    "invoice_date": "2025-05-15",
+    "subtotal": "100.00",
+    "tax": "10.00",
+    "total": "110.00",
+    "currency": "USD"
+  },
+  "expected_line_items": [
+    {
+      "description": "Service Item",
+      "quantity": "1.00",
+      "unit_price": "100.00",
+      "line_total": "100.00"
+    }
+  ],
+  "expected_validation_issues": [],
+  "expected_needs_review": false
+}

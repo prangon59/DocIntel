@@ -21,14 +21,18 @@ router = APIRouter(prefix="/search", tags=["search"])
 )
 async def search(
     q: str = Query("", description="Search query string"),
-    mode: SearchMode = Query(SearchMode.HYBRID, description="Retrieval mode: keyword | semantic | hybrid"),
+    mode: SearchMode = Query(
+        SearchMode.HYBRID, description="Retrieval mode: keyword | semantic | hybrid"
+    ),
     supplier: str | None = Query(None, description="Filter by supplier / vendor name"),
     date_from: date | None = Query(None, description="Filter by invoice date >= date_from"),
     date_to: date | None = Query(None, description="Filter by invoice date <= date_to"),
     needs_review: bool | None = Query(None, description="Filter by review status"),
     min_total: Decimal | None = Query(None, description="Filter by minimum invoice total"),
     max_total: Decimal | None = Query(None, description="Filter by maximum invoice total"),
-    doc_status: DocumentStatus | None = Query(None, alias="status", description="Filter by document status"),
+    doc_status: DocumentStatus | None = Query(
+        None, alias="status", description="Filter by document status"
+    ),
     limit: int = Query(20, ge=1, le=100, description="Results limit"),
     offset: int = Query(0, ge=0, description="Results offset"),
     db: AsyncSession = Depends(get_db_session),

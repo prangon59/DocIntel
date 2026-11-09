@@ -3,15 +3,15 @@
 ## Development Prompts (Agentic AI Workflow)
 
 ### Turn 1: Project Initialization & Phase 0
-```
+```text
 Read docs/task-brief.pdf (the original assignment) and docs/SPEC.md fully,
 and follow the workspace rules. If the two ever conflict, the task brief wins
 and you must tell me. Start Phase 0 only: implementation plan artifact,
 repo skeleton, and docker-compose. Wait for my approval before Phase 1.
 ```
 
-### Turn 2: Phase 1 Approval & Ingestion Pipeline
-```
+### Turn 2: Phase 1 Ingestion Pipeline & Test Fixtures
+```text
 Plan approved. Proceed with Phase 1 only. Before you start, confirm that:
 - the Postgres image includes pgvector,
 - the backend Dockerfile installs tesseract-ocr (with English language data),
@@ -22,8 +22,8 @@ XLSX, a CSV and a corrupted file. Do not start Phase 2. When finished, run the
 tests and give me a summary artifact.
 ```
 
-### Turn 3: Phase 2 Approval, AI Extraction & Validation
-```
+### Turn 3: Phase 2 AI Extraction, Grounding & Deterministic Validation
+```text
 Phase 1 approved. Re-read docs/SPEC.md and the rules, then implement Phase 2 only.
 Plan first, then build:
 - LLMClient interface with a Gemini implementation (structured JSON output,
@@ -43,15 +43,53 @@ Plan first, then build:
 Do not start Phase 3. Run tests and give me a summary artifact.
 ```
 
+### Turn 4: Phase 3 Semantic Search, Corrections & Cross-Verification
+```text
+Phase 2 approved. Re-read docs/SPEC.md and the rules, then implement Phase 3 only.
+Plan first, then build:
+- Embedder interface (Gemini embeddings) and storage in pgvector.
+- Search: keyword (Postgres full-text + filters), semantic (pgvector), and
+  hybrid (combine both, e.g. reciprocal rank fusion).
+- PATCH /documents/{id}/result with audit trail in corrections, re-running
+  validation after each correction.
+- POST /documents/{id}/reprocess and POST /jobs/reprocess-failed.
+- Cross-verification service and endpoints (PDF<->PDF, PDF<->Excel), matching
+  by invoice number + supplier, reporting differences in total, date and line items.
+- GET /metrics (success rate, failure rate, avg processing time).
+- Tests for all of the above, including failure cases.
+Do not start Phase 4. Run tests and give me a summary artifact.
+```
+
+### Turn 5: Phase 4 & Phase 5 Evaluation Benchmark, Dataset & Documentation
+```text
+Phases 3 and 4 approved. Re-read docs/SPEC.md and the rules, then implement Phase 5 only.
+Plan first, then build:
+- /eval dataset generator: varied invoice layouts as digital PDF, scanned PDF with
+  noise/rotation, PNG/JPG, XLSX and CSV, plus some corrupted files and some invoices
+  with deliberate math errors and duplicates, all with ground-truth JSON.
+  Aim for about 30-50 documents.
+- run_eval.py: run the real pipeline (real Gemini calls) and report field-level
+  accuracy, line-item accuracy, avg and p95 processing time, document success rate,
+  failure rate, and validation-flag precision/recall.
+- Write eval/report.md using ONLY numbers actually measured by running it.
+  State clearly that the dataset is synthetic. Include failure examples and limitations.
+- README: setup in a few commands, architecture, design decisions (why FastAPI,
+  Postgres + pgvector, Tesseract, Celery), scalability notes (1000-page PDFs,
+  per-page parallelism), security measures, and known limitations.
+- docs/architecture.md with a Mermaid diagram, and docs/schema.md with an ERD.
+- Finish docs/prompts.md and docs/ai_disclosure.md.
+Do not invent any numbers. Run tests and give me a summary artifact.
+```
+
 ---
 
-## Product Prompts (AI Extraction Engine)
+## Product Prompts (AI Extraction & Embedding Engine)
 
 ### 1. Invoice Extraction Prompt
 
 * **Target Model**: `gemini-2.5-flash` (via Google GenAI SDK `google-genai` with `response_schema=InvoiceExtractionSchema`)
 * **Temperature**: `0.0` (deterministic output)
-* **Response Format**: `application/json` (Pydantic validated)
+* **Response Format**: `application/json` (Pydantic schema validated)
 
 #### System Instruction:
 ```text
@@ -97,3 +135,11 @@ Do not invent column names that are not in the input list.
 Spreadsheet Headers:
 {headers_json}
 ```
+
+---
+
+### 3. Vector Embedding Model
+
+* **Target Model**: `text-embedding-004` (768 dimensions)
+* **Task Type**: `RETRIEVAL_DOCUMENT` for page indexing, `RETRIEVAL_QUERY` for search queries.
+* **Storage**: PostgreSQL `embeddings` table with pgvector cosine distance `<=>` operator.

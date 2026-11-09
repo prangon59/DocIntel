@@ -1,0 +1,21 @@
+{
+  "filename": "math_err_03.xlsx",
+  "file_type": "xlsx",
+  "is_valid": false,
+  "expected_status": "COMPLETED",
+  "expected_fields": {
+    "invoice_number": "INV-MATH-ERR-math_err_03",
+    "supplier_name": "Faulty Accounting LLC",
+    "customer_name": null,
+    "invoice_date": "2025-04-01",
+    "subtotal": "300.00",
+    "tax": "30.00",
+    "total": "400.00",
+    "currency": "USD"
+  },
+  "expected_line_items": [],
+  "expected_validation_issues": [
+    "MATH_MISMATCH_TOTAL"
+  ],
+  "expected_needs_review": true
+}

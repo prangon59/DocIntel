@@ -31,7 +31,9 @@ async def compute_operational_metrics(db: AsyncSession) -> OperationalMetricsRes
     failure_rate = (failed_count / finished_count * 100.0) if finished_count > 0 else 0.0
 
     # 3. File type counts
-    file_type_query = select(Document.file_type, func.count(Document.id)).group_by(Document.file_type)
+    file_type_query = select(Document.file_type, func.count(Document.id)).group_by(
+        Document.file_type
+    )
     file_type_rows = (await db.execute(file_type_query)).all()
     file_type_counts = {ft: count for ft, count in file_type_rows if ft}
 
@@ -43,16 +45,24 @@ async def compute_operational_metrics(db: AsyncSession) -> OperationalMetricsRes
     # 5. Validation issues counts
     total_issues = (await db.execute(select(func.count(ValidationIssue.id)))).scalar() or 0
 
-    severity_query = select(ValidationIssue.severity, func.count(ValidationIssue.id)).group_by(ValidationIssue.severity)
+    severity_query = select(ValidationIssue.severity, func.count(ValidationIssue.id)).group_by(
+        ValidationIssue.severity
+    )
     severity_rows = (await db.execute(severity_query)).all()
-    issues_by_severity = {getattr(sev, "value", str(sev)): count for sev, count in severity_rows if sev}
+    issues_by_severity = {
+        getattr(sev, "value", str(sev)): count for sev, count in severity_rows if sev
+    }
 
-    code_query = select(ValidationIssue.code, func.count(ValidationIssue.id)).group_by(ValidationIssue.code)
+    code_query = select(ValidationIssue.code, func.count(ValidationIssue.id)).group_by(
+        ValidationIssue.code
+    )
     code_rows = (await db.execute(code_query)).all()
     issues_by_code = {code: count for code, count in code_rows if code}
 
     # 6. Processing duration metrics
-    durations_query = select(ProcessingEvent.duration_ms).where(ProcessingEvent.duration_ms.isnot(None))
+    durations_query = select(ProcessingEvent.duration_ms).where(
+        ProcessingEvent.duration_ms.isnot(None)
+    )
     duration_rows = (await db.execute(durations_query)).scalars().all()
 
     durations = [float(d) for d in duration_rows if d is not None and d > 0]

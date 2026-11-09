@@ -1,4 +1,5 @@
 """Duplicate invoice detection engine supporting exact and Rapidfuzz fuzzy matching."""
+
 import uuid
 from decimal import Decimal
 from typing import Any
@@ -93,12 +94,21 @@ async def detect_duplicate_invoices(
             continue  # Avoid duplicate fuzzy flag if exact match found
 
         # 2. Fuzzy Duplicate: Rapidfuzz match on supplier + identical total + identical date
-        if supplier and ex_supplier and total_val is not None and ex_total is not None and inv_date and ex_date:
+        if (
+            supplier
+            and ex_supplier
+            and total_val is not None
+            and ex_total is not None
+            and inv_date
+            and ex_date
+        ):
             supplier_score = max(
                 fuzz.token_sort_ratio(supplier.lower(), ex_supplier.lower()),
                 fuzz.token_set_ratio(supplier.lower(), ex_supplier.lower()),
             )
-            is_same_total = abs(Decimal(str(total_val)) - Decimal(str(ex_total))) <= settings.MATH_TOLERANCE
+            is_same_total = (
+                abs(Decimal(str(total_val)) - Decimal(str(ex_total))) <= settings.MATH_TOLERANCE
+            )
             is_same_date = inv_date == ex_date
 
             if supplier_score >= 80 and is_same_total and is_same_date:

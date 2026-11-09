@@ -1,0 +1,10 @@
+{
+  "filename": "corrupted_02_truncated.pdf",
+  "file_type": "pdf",
+  "is_valid": false,
+  "expected_status": "FAILED",
+  "expected_fields": {},
+  "expected_line_items": [],
+  "expected_validation_issues": [],
+  "expected_needs_review": false
+}

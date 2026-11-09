@@ -1,4 +1,5 @@
 """Structured invoice extraction Pydantic schemas with per-field evidence and Decimal money."""
+
 from datetime import date
 from decimal import Decimal
 from typing import Any
@@ -12,7 +13,9 @@ class StringEvidence(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
     value: str | None = Field(default=None, description="Extracted string or null if not present")
-    confidence: float = Field(default=0.0, ge=0.0, le=1.0, description="Extraction confidence (0-1)")
+    confidence: float = Field(
+        default=0.0, ge=0.0, le=1.0, description="Extraction confidence (0-1)"
+    )
     source_snippet: str | None = Field(default=None, description="Verbatim source text snippet")
     is_grounded: bool = Field(default=True, description="True if verified against source text")
 
@@ -23,7 +26,9 @@ class DateEvidence(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
     value: str | None = Field(default=None, description="ISO 8601 date (YYYY-MM-DD) or null")
-    confidence: float = Field(default=0.0, ge=0.0, le=1.0, description="Extraction confidence (0-1)")
+    confidence: float = Field(
+        default=0.0, ge=0.0, le=1.0, description="Extraction confidence (0-1)"
+    )
     source_snippet: str | None = Field(default=None, description="Verbatim source text snippet")
     is_grounded: bool = Field(default=True, description="True if verified against source text")
 
@@ -45,7 +50,9 @@ class DecimalEvidence(BaseModel):
     value: Decimal | None = Field(
         default=None, description="Extracted decimal number or null if missing"
     )
-    confidence: float = Field(default=0.0, ge=0.0, le=1.0, description="Extraction confidence (0-1)")
+    confidence: float = Field(
+        default=0.0, ge=0.0, le=1.0, description="Extraction confidence (0-1)"
+    )
     source_snippet: str | None = Field(default=None, description="Verbatim source text snippet")
     is_grounded: bool = Field(default=True, description="True if verified against source text")
 

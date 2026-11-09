@@ -1,4 +1,5 @@
 """Google Gemini implementation of the LLMClient interface using the Google GenAI SDK."""
+
 import asyncio
 import json
 import logging
@@ -67,7 +68,7 @@ class GeminiLLMClient(LLMClient):
             temperature=0.0,
         )
 
-        prompt = f"Document Text:\n\"\"\"\n{document_text}\n\"\"\""
+        prompt = f'Document Text:\n"""\n{document_text}\n"""'
 
         last_error: Exception | None = None
         for attempt in range(1, self.max_retries + 1):
@@ -103,7 +104,9 @@ class GeminiLLMClient(LLMClient):
                 if attempt < self.max_retries:
                     await asyncio.sleep(2**attempt)
 
-        raise RuntimeError(f"Gemini invoice extraction failed after {self.max_retries} attempts: {last_error}")
+        raise RuntimeError(
+            f"Gemini invoice extraction failed after {self.max_retries} attempts: {last_error}"
+        )
 
     async def map_spreadsheet_columns(self, headers: list[str]) -> SpreadsheetColumnMapping:
         """Map spreadsheet headers to invoice schema using structured JSON."""

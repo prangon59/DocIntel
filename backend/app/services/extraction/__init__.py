@@ -1,4 +1,5 @@
 """LLM information extraction service and factory."""
+
 from app.services.extraction.client import LLMClient
 from app.services.extraction.gemini_client import GeminiLLMClient
 

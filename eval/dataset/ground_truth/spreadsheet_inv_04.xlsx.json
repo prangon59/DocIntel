@@ -1,0 +1,19 @@
+{
+  "filename": "spreadsheet_inv_04.xlsx",
+  "file_type": "xlsx",
+  "is_valid": true,
+  "expected_status": "COMPLETED",
+  "expected_fields": {
+    "invoice_number": "INV-2025-XLS-004",
+    "supplier_name": "Spreadsheet Vendor 4 LLC",
+    "customer_name": null,
+    "invoice_date": "2025-03-14",
+    "subtotal": "400.00",
+    "tax": "40.00",
+    "total": "440.00",
+    "currency": "USD"
+  },
+  "expected_line_items": [],
+  "expected_validation_issues": [],
+  "expected_needs_review": false
+}

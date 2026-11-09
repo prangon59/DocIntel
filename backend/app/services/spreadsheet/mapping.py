@@ -1,4 +1,5 @@
 """Spreadsheet column mapping service converting tabular rows into structured invoice extractions."""
+
 import re
 from datetime import date
 from decimal import Decimal
@@ -59,7 +60,10 @@ def heuristic_header_mapping(headers: list[str]) -> SpreadsheetColumnMapping:
 
     for h in headers:
         norm = h.lower().strip()
-        if any(kw in norm for kw in ("inv #", "invoice no", "invoice number", "invoice_no", "inv_num", "bill no")):
+        if any(
+            kw in norm
+            for kw in ("inv #", "invoice no", "invoice number", "invoice_no", "inv_num", "bill no")
+        ):
             mapping.invoice_number_col = h
         elif any(kw in norm for kw in ("inv date", "invoice date", "date")):
             mapping.invoice_date_col = h
@@ -99,20 +103,42 @@ def parse_rows_with_mapping(
 
     for _r_i, row in enumerate(sheet.rows, start=1):
         # Extract invoice number
-        inv_num = clean_str(row.get(mapping.invoice_number_col)) if mapping.invoice_number_col else None
-        inv_date = clean_date_str(row.get(mapping.invoice_date_col)) if mapping.invoice_date_col else None
-        supplier = clean_str(row.get(mapping.supplier_name_col)) if mapping.supplier_name_col else None
-        customer = clean_str(row.get(mapping.customer_name_col)) if mapping.customer_name_col else None
+        inv_num = (
+            clean_str(row.get(mapping.invoice_number_col)) if mapping.invoice_number_col else None
+        )
+        inv_date = (
+            clean_date_str(row.get(mapping.invoice_date_col)) if mapping.invoice_date_col else None
+        )
+        supplier = (
+            clean_str(row.get(mapping.supplier_name_col)) if mapping.supplier_name_col else None
+        )
+        customer = (
+            clean_str(row.get(mapping.customer_name_col)) if mapping.customer_name_col else None
+        )
         subtotal = clean_decimal(row.get(mapping.subtotal_col)) if mapping.subtotal_col else None
         tax = clean_decimal(row.get(mapping.tax_col)) if mapping.tax_col else None
         total = clean_decimal(row.get(mapping.total_col)) if mapping.total_col else None
         currency = clean_str(row.get(mapping.currency_col)) if mapping.currency_col else "USD"
 
         # Check line item columns
-        item_desc = clean_str(row.get(mapping.item_description_col)) if mapping.item_description_col else None
-        item_qty = clean_decimal(row.get(mapping.item_quantity_col)) if mapping.item_quantity_col else None
-        item_price = clean_decimal(row.get(mapping.item_unit_price_col)) if mapping.item_unit_price_col else None
-        item_total = clean_decimal(row.get(mapping.item_line_total_col)) if mapping.item_line_total_col else None
+        item_desc = (
+            clean_str(row.get(mapping.item_description_col))
+            if mapping.item_description_col
+            else None
+        )
+        item_qty = (
+            clean_decimal(row.get(mapping.item_quantity_col)) if mapping.item_quantity_col else None
+        )
+        item_price = (
+            clean_decimal(row.get(mapping.item_unit_price_col))
+            if mapping.item_unit_price_col
+            else None
+        )
+        item_total = (
+            clean_decimal(row.get(mapping.item_line_total_col))
+            if mapping.item_line_total_col
+            else None
+        )
 
         line_items: list[ExtractedLineItem] = []
         if item_desc or item_total:

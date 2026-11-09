@@ -1,0 +1,10 @@
+{
+  "filename": "corrupted_03_fake.xlsx",
+  "file_type": "xlsx",
+  "is_valid": false,
+  "expected_status": "FAILED",
+  "expected_fields": {},
+  "expected_line_items": [],
+  "expected_validation_issues": [],
+  "expected_needs_review": false
+}

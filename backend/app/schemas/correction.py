@@ -33,8 +33,12 @@ class CorrectionPayload(BaseModel):
     total: Decimal | None = None
     currency: str | None = None
     line_items: list[LineItemCorrection] | None = None
-    reason: str | None = Field(default="Manual review adjustment", description="Audit reason for changes")
-    updated_by: str = Field(default="reviewer", description="User identifier who performed correction")
+    reason: str | None = Field(
+        default="Manual review adjustment", description="Audit reason for changes"
+    )
+    updated_by: str = Field(
+        default="reviewer", description="User identifier who performed correction"
+    )
 
 
 class CorrectionAuditItem(BaseModel):

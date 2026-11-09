@@ -1,4 +1,5 @@
 """Grounding check verifying extracted values against verbatim source document text."""
+
 import re
 from dataclasses import dataclass
 
@@ -40,7 +41,9 @@ def is_grounded_in_text(value_str: str, source_text: str) -> bool:
 
     # 2. Strip currency symbols / commas ($1,250.00 -> 1250.00 or 1250)
     cleaned_num = re.sub(r"[^\d\.]", "", val_norm)
-    if cleaned_num and (cleaned_num in source_norm or cleaned_num.rstrip("0").rstrip(".") in source_norm):
+    if cleaned_num and (
+        cleaned_num in source_norm or cleaned_num.rstrip("0").rstrip(".") in source_norm
+    ):
         return True
 
     # 3. Token-level overlap (all tokens in value appear in source text)

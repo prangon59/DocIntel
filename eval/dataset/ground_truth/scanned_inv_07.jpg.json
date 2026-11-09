@@ -1,0 +1,26 @@
+{
+  "filename": "scanned_inv_07.jpg",
+  "file_type": "jpg",
+  "is_valid": true,
+  "expected_status": "COMPLETED",
+  "expected_fields": {
+    "invoice_number": "INV-2025-SCN-007",
+    "supplier_name": "Heavy Logistics Supplies 7",
+    "customer_name": "Industrial Logistics 7",
+    "invoice_date": "2025-02-12",
+    "subtotal": "250.00",
+    "tax": "25.00",
+    "total": "275.00",
+    "currency": "USD"
+  },
+  "expected_line_items": [
+    {
+      "description": "Hydraulic Parts Set 7",
+      "quantity": "10.00",
+      "unit_price": "25.00",
+      "line_total": "250.0000"
+    }
+  ],
+  "expected_validation_issues": [],
+  "expected_needs_review": false
+}

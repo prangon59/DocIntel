@@ -1,0 +1,2 @@
+invoice_num,inv_date,supplier,subtotal,tax_amount,total_amt,curr
+INV-MATH-ERR-math_err_04,2025-04-01,Faulty Accounting LLC,200.00,20.00,300.00,USD

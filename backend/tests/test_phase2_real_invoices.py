@@ -59,34 +59,58 @@ async def test_criterion_1_and_4_digital_pdf_result_and_null_missing_field(
 
     def mock_extraction(text: str) -> InvoiceExtractionSchema:
         return InvoiceExtractionSchema(
-            invoice_number=StringEvidence(value="INV-2024-001", confidence=0.98, source_snippet="INV-2024-001"),
+            invoice_number=StringEvidence(
+                value="INV-2024-001", confidence=0.98, source_snippet="INV-2024-001"
+            ),
             supplier_name=StringEvidence(
                 value="Acme Industrial Supplies Ltd",
                 confidence=0.96,
                 source_snippet="Acme Industrial Supplies Ltd",
             ),
             customer_name=None,  # Missing field in extraction: must be null, not fabricated
-            invoice_date=DateEvidence(value="2024-05-15", confidence=0.95, source_snippet="2024-05-15"),
-            subtotal=DecimalEvidence(value=Decimal("500.00"), confidence=0.97, source_snippet="500.00"),
+            invoice_date=DateEvidence(
+                value="2024-05-15", confidence=0.95, source_snippet="2024-05-15"
+            ),
+            subtotal=DecimalEvidence(
+                value=Decimal("500.00"), confidence=0.97, source_snippet="500.00"
+            ),
             tax=DecimalEvidence(value=Decimal("50.00"), confidence=0.95, source_snippet="50.00"),
-            total=DecimalEvidence(value=Decimal("550.00"), confidence=0.99, source_snippet="550.00"),
+            total=DecimalEvidence(
+                value=Decimal("550.00"), confidence=0.99, source_snippet="550.00"
+            ),
             currency=StringEvidence(value="USD", confidence=0.99, source_snippet="USD"),
             line_items=[
                 ExtractedLineItem(
                     description=StringEvidence(
-                        value="Heavy Duty Widget A", confidence=0.92, source_snippet="Heavy Duty Widget A"
+                        value="Heavy Duty Widget A",
+                        confidence=0.92,
+                        source_snippet="Heavy Duty Widget A",
                     ),
-                    quantity=DecimalEvidence(value=Decimal("10.00"), confidence=0.95, source_snippet="10"),
-                    unit_price=DecimalEvidence(value=Decimal("25.00"), confidence=0.95, source_snippet="25.00"),
-                    line_total=DecimalEvidence(value=Decimal("250.00"), confidence=0.98, source_snippet="250.00"),
+                    quantity=DecimalEvidence(
+                        value=Decimal("10.00"), confidence=0.95, source_snippet="10"
+                    ),
+                    unit_price=DecimalEvidence(
+                        value=Decimal("25.00"), confidence=0.95, source_snippet="25.00"
+                    ),
+                    line_total=DecimalEvidence(
+                        value=Decimal("250.00"), confidence=0.98, source_snippet="250.00"
+                    ),
                 ),
                 ExtractedLineItem(
                     description=StringEvidence(
-                        value="Precision Gadget B", confidence=0.92, source_snippet="Precision Gadget B"
+                        value="Precision Gadget B",
+                        confidence=0.92,
+                        source_snippet="Precision Gadget B",
                     ),
-                    quantity=DecimalEvidence(value=Decimal("2.00"), confidence=0.95, source_snippet="2"),
-                    unit_price=DecimalEvidence(value=Decimal("125.00"), confidence=0.95, source_snippet="125.00"),
-                    line_total=DecimalEvidence(value=Decimal("250.00"), confidence=0.98, source_snippet="250.00"),
+                    quantity=DecimalEvidence(
+                        value=Decimal("2.00"), confidence=0.95, source_snippet="2"
+                    ),
+                    unit_price=DecimalEvidence(
+                        value=Decimal("125.00"), confidence=0.95, source_snippet="125.00"
+                    ),
+                    line_total=DecimalEvidence(
+                        value=Decimal("250.00"), confidence=0.98, source_snippet="250.00"
+                    ),
                 ),
             ],
             overall_confidence=0.96,
@@ -142,16 +166,24 @@ async def test_criterion_2_math_mismatch_flags_needs_review(
 
     def math_mismatch_extraction(text: str) -> InvoiceExtractionSchema:
         return InvoiceExtractionSchema(
-            invoice_number=StringEvidence(value="INV-2024-001", confidence=0.98, source_snippet="INV-2024-001"),
+            invoice_number=StringEvidence(
+                value="INV-2024-001", confidence=0.98, source_snippet="INV-2024-001"
+            ),
             supplier_name=StringEvidence(
                 value="Acme Industrial Supplies Ltd",
                 confidence=0.96,
                 source_snippet="Acme Industrial Supplies Ltd",
             ),
-            invoice_date=DateEvidence(value="2024-05-15", confidence=0.95, source_snippet="2024-05-15"),
-            subtotal=DecimalEvidence(value=Decimal("500.00"), confidence=0.95, source_snippet="500.00"),
+            invoice_date=DateEvidence(
+                value="2024-05-15", confidence=0.95, source_snippet="2024-05-15"
+            ),
+            subtotal=DecimalEvidence(
+                value=Decimal("500.00"), confidence=0.95, source_snippet="500.00"
+            ),
             tax=DecimalEvidence(value=Decimal("50.00"), confidence=0.95, source_snippet="50.00"),
-            total=DecimalEvidence(value=Decimal("600.00"), confidence=0.95),  # 500 + 50 != 600! Math mismatch!
+            total=DecimalEvidence(
+                value=Decimal("600.00"), confidence=0.95
+            ),  # 500 + 50 != 600! Math mismatch!
             currency=StringEvidence(value="USD", confidence=0.95, source_snippet="USD"),
             line_items=[],
             overall_confidence=0.95,
@@ -199,33 +231,57 @@ async def test_criterion_3_upload_same_invoice_twice_detects_duplicate(
 
     def standard_extraction(text: str) -> InvoiceExtractionSchema:
         return InvoiceExtractionSchema(
-            invoice_number=StringEvidence(value="INV-2024-001", confidence=0.98, source_snippet="INV-2024-001"),
+            invoice_number=StringEvidence(
+                value="INV-2024-001", confidence=0.98, source_snippet="INV-2024-001"
+            ),
             supplier_name=StringEvidence(
                 value="Acme Industrial Supplies Ltd",
                 confidence=0.96,
                 source_snippet="Acme Industrial Supplies Ltd",
             ),
-            invoice_date=DateEvidence(value="2024-05-15", confidence=0.95, source_snippet="2024-05-15"),
-            subtotal=DecimalEvidence(value=Decimal("500.00"), confidence=0.97, source_snippet="500.00"),
+            invoice_date=DateEvidence(
+                value="2024-05-15", confidence=0.95, source_snippet="2024-05-15"
+            ),
+            subtotal=DecimalEvidence(
+                value=Decimal("500.00"), confidence=0.97, source_snippet="500.00"
+            ),
             tax=DecimalEvidence(value=Decimal("50.00"), confidence=0.95, source_snippet="50.00"),
-            total=DecimalEvidence(value=Decimal("550.00"), confidence=0.99, source_snippet="550.00"),
+            total=DecimalEvidence(
+                value=Decimal("550.00"), confidence=0.99, source_snippet="550.00"
+            ),
             currency=StringEvidence(value="USD", confidence=0.99, source_snippet="USD"),
             line_items=[
                 ExtractedLineItem(
                     description=StringEvidence(
-                        value="Heavy Duty Widget A", confidence=0.92, source_snippet="Heavy Duty Widget A"
+                        value="Heavy Duty Widget A",
+                        confidence=0.92,
+                        source_snippet="Heavy Duty Widget A",
                     ),
-                    quantity=DecimalEvidence(value=Decimal("10.00"), confidence=0.95, source_snippet="10"),
-                    unit_price=DecimalEvidence(value=Decimal("25.00"), confidence=0.95, source_snippet="25.00"),
-                    line_total=DecimalEvidence(value=Decimal("250.00"), confidence=0.98, source_snippet="250.00"),
+                    quantity=DecimalEvidence(
+                        value=Decimal("10.00"), confidence=0.95, source_snippet="10"
+                    ),
+                    unit_price=DecimalEvidence(
+                        value=Decimal("25.00"), confidence=0.95, source_snippet="25.00"
+                    ),
+                    line_total=DecimalEvidence(
+                        value=Decimal("250.00"), confidence=0.98, source_snippet="250.00"
+                    ),
                 ),
                 ExtractedLineItem(
                     description=StringEvidence(
-                        value="Precision Gadget B", confidence=0.92, source_snippet="Precision Gadget B"
+                        value="Precision Gadget B",
+                        confidence=0.92,
+                        source_snippet="Precision Gadget B",
                     ),
-                    quantity=DecimalEvidence(value=Decimal("2.00"), confidence=0.95, source_snippet="2"),
-                    unit_price=DecimalEvidence(value=Decimal("125.00"), confidence=0.95, source_snippet="125.00"),
-                    line_total=DecimalEvidence(value=Decimal("250.00"), confidence=0.98, source_snippet="250.00"),
+                    quantity=DecimalEvidence(
+                        value=Decimal("2.00"), confidence=0.95, source_snippet="2"
+                    ),
+                    unit_price=DecimalEvidence(
+                        value=Decimal("125.00"), confidence=0.95, source_snippet="125.00"
+                    ),
+                    line_total=DecimalEvidence(
+                        value=Decimal("250.00"), confidence=0.98, source_snippet="250.00"
+                    ),
                 ),
             ],
             overall_confidence=0.96,

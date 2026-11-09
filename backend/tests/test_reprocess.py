@@ -68,7 +68,9 @@ async def test_reprocess_single_document(
     # Verify status in DB updated to PENDING
     refreshed = (
         await db_session.execute(
-            select(Document).where(Document.id == doc_failed1.id).execution_options(populate_existing=True)
+            select(Document)
+            .where(Document.id == doc_failed1.id)
+            .execution_options(populate_existing=True)
         )
     ).scalar_one()
     assert refreshed is not None
@@ -100,17 +102,23 @@ async def test_reprocess_failed_jobs(
     # Verify both failed docs reset to PENDING
     d1 = (
         await db_session.execute(
-            select(Document).where(Document.id == doc_failed1.id).execution_options(populate_existing=True)
+            select(Document)
+            .where(Document.id == doc_failed1.id)
+            .execution_options(populate_existing=True)
         )
     ).scalar_one()
     d2 = (
         await db_session.execute(
-            select(Document).where(Document.id == doc_failed2.id).execution_options(populate_existing=True)
+            select(Document)
+            .where(Document.id == doc_failed2.id)
+            .execution_options(populate_existing=True)
         )
     ).scalar_one()
     d_c = (
         await db_session.execute(
-            select(Document).where(Document.id == doc_completed.id).execution_options(populate_existing=True)
+            select(Document)
+            .where(Document.id == doc_completed.id)
+            .execution_options(populate_existing=True)
         )
     ).scalar_one()
 

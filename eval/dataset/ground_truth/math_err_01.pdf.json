@@ -1,0 +1,28 @@
+{
+  "filename": "math_err_01.pdf",
+  "file_type": "pdf",
+  "is_valid": false,
+  "expected_status": "COMPLETED",
+  "expected_fields": {
+    "invoice_number": "INV-MATH-ERR-math_err_01",
+    "supplier_name": "Faulty Accounting LLC",
+    "customer_name": "Review Dept",
+    "invoice_date": "2025-04-01",
+    "subtotal": "500.00",
+    "tax": "50.00",
+    "total": "650.00",
+    "currency": "USD"
+  },
+  "expected_line_items": [
+    {
+      "description": "Audit Consulting",
+      "quantity": "1.00",
+      "unit_price": "500.00",
+      "line_total": "500.00"
+    }
+  ],
+  "expected_validation_issues": [
+    "MATH_MISMATCH_TOTAL"
+  ],
+  "expected_needs_review": true
+}

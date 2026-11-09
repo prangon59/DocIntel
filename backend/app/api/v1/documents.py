@@ -302,7 +302,16 @@ async def get_document_result(
     for ext in doc.extractions:
         field_confidences: dict[str, float] = {}
         if ext.raw_llm_payload and isinstance(ext.raw_llm_payload, dict):
-            for f in ["invoice_number", "invoice_date", "supplier_name", "customer_name", "subtotal", "tax", "total", "currency"]:
+            for f in [
+                "invoice_number",
+                "invoice_date",
+                "supplier_name",
+                "customer_name",
+                "subtotal",
+                "tax",
+                "total",
+                "currency",
+            ]:
                 val = ext.raw_llm_payload.get(f)
                 if isinstance(val, dict) and "confidence" in val and val["confidence"] is not None:
                     field_confidences[f] = float(val["confidence"])

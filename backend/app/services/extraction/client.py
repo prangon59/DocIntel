@@ -1,4 +1,5 @@
 """Abstract LLMClient interface enabling modular swapping of LLM providers."""
+
 from abc import ABC, abstractmethod
 
 from app.schemas.extraction import InvoiceExtractionSchema, SpreadsheetColumnMapping

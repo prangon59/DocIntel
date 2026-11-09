@@ -31,15 +31,28 @@ def _cosine_similarity(vec1: list[float], vec2: list[float]) -> float:
 
 def _matches_extraction_filters(ext: Extraction | None, filters: dict[str, Any]) -> bool:
     """Check if extraction satisfies structured filters."""
-    if filters.get("supplier") and (not ext or not ext.supplier_name or filters["supplier"].lower() not in ext.supplier_name.lower()):
+    if filters.get("supplier") and (
+        not ext
+        or not ext.supplier_name
+        or filters["supplier"].lower() not in ext.supplier_name.lower()
+    ):
         return False
-    if filters.get("date_from") and (not ext or not ext.invoice_date or ext.invoice_date < filters["date_from"]):
+    if filters.get("date_from") and (
+        not ext or not ext.invoice_date or ext.invoice_date < filters["date_from"]
+    ):
         return False
-    if filters.get("date_to") and (not ext or not ext.invoice_date or ext.invoice_date > filters["date_to"]):
+    if filters.get("date_to") and (
+        not ext or not ext.invoice_date or ext.invoice_date > filters["date_to"]
+    ):
         return False
-    if filters.get("min_total") and (not ext or ext.total is None or ext.total < filters["min_total"]):
+    if filters.get("min_total") and (
+        not ext or ext.total is None or ext.total < filters["min_total"]
+    ):
         return False
-    return not (filters.get("max_total") and (not ext or ext.total is None or ext.total > filters["max_total"]))
+    return not (
+        filters.get("max_total")
+        and (not ext or ext.total is None or ext.total > filters["max_total"])
+    )
 
 
 def _extract_highlight(text: str, query: str, window: int = 120) -> str:
@@ -221,12 +234,9 @@ async def _execute_semantic_search(
     query_vector = await embedder.embed_text(query)
 
     # Load embeddings and documents
-    stmt = (
-        select(Embedding)
-        .options(
-            selectinload(Embedding.document).selectinload(Document.extractions),
-            selectinload(Embedding.document).selectinload(Document.pages),
-        )
+    stmt = select(Embedding).options(
+        selectinload(Embedding.document).selectinload(Document.extractions),
+        selectinload(Embedding.document).selectinload(Document.pages),
     )
     embeddings = (await db.execute(stmt)).scalars().all()
 
@@ -295,12 +305,16 @@ async def _execute_hybrid_search(
     matched_modes: dict[UUID, set[str]] = {}
 
     for rank, item in enumerate(keyword_results, start=1):
-        rrf_scores[item.document_id] = rrf_scores.get(item.document_id, 0.0) + (1.0 / (k_constant + rank))
+        rrf_scores[item.document_id] = rrf_scores.get(item.document_id, 0.0) + (
+            1.0 / (k_constant + rank)
+        )
         doc_map[item.document_id] = item
         matched_modes.setdefault(item.document_id, set()).add("keyword")
 
     for rank, item in enumerate(semantic_results, start=1):
-        rrf_scores[item.document_id] = rrf_scores.get(item.document_id, 0.0) + (1.0 / (k_constant + rank))
+        rrf_scores[item.document_id] = rrf_scores.get(item.document_id, 0.0) + (
+            1.0 / (k_constant + rank)
+        )
         if item.document_id not in doc_map:
             doc_map[item.document_id] = item
         matched_modes.setdefault(item.document_id, set()).add("semantic")

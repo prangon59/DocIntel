@@ -3,6 +3,7 @@
 Evaluates missing fields, mathematical calculations, currency consistency,
 and sets needs_review flag. Contains zero LLM logic.
 """
+
 from dataclasses import dataclass
 from decimal import Decimal
 
@@ -228,7 +229,11 @@ def validate_extracted_invoice(
                     severity=IssueSeverity.WARNING,
                     field=gi.field,
                     message=f"Extracted value '{gi.value}' was not grounded in the source document text.",
-                    details={"field": gi.field, "value": gi.value, "penalty": gi.confidence_penalty},
+                    details={
+                        "field": gi.field,
+                        "value": gi.value,
+                        "penalty": gi.confidence_penalty,
+                    },
                 )
             )
 

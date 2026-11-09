@@ -1,0 +1,32 @@
+{
+  "filename": "digital_inv_08.pdf",
+  "file_type": "pdf",
+  "is_valid": true,
+  "expected_status": "COMPLETED",
+  "expected_fields": {
+    "invoice_number": "INV-2025-DIG-008",
+    "supplier_name": "TechCorp Enterprise 8 Inc.",
+    "customer_name": "Client Solutions 8 LLC",
+    "invoice_date": "2025-01-18",
+    "subtotal": "500.0000",
+    "tax": "50.00",
+    "total": "550.0000",
+    "currency": "USD"
+  },
+  "expected_line_items": [
+    {
+      "description": "Cloud Hosting Tier 8",
+      "quantity": "2.00",
+      "unit_price": "150.00",
+      "line_total": "300.0000"
+    },
+    {
+      "description": "Database Support Unit 8",
+      "quantity": "4.00",
+      "unit_price": "50.00",
+      "line_total": "200.0000"
+    }
+  ],
+  "expected_validation_issues": [],
+  "expected_needs_review": false
+}

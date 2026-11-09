@@ -4,6 +4,7 @@ Coordinates magic-byte validation, text extraction (PyMuPDF / OCR / Spreadsheets
 LLM information extraction (Gemini / LLMClient), grounding checks, deterministic
 financial math validation, and duplicate detection.
 """
+
 import logging
 import time
 import uuid
@@ -192,7 +193,9 @@ async def process_document_sync(
                 try:
                     mapping = await active_client.map_spreadsheet_columns(sheet.headers)
                 except Exception as map_err:
-                    logger.warning("LLM column mapping unavailable (%s); using heuristics.", map_err)
+                    logger.warning(
+                        "LLM column mapping unavailable (%s); using heuristics.", map_err
+                    )
                     mapping = heuristic_header_mapping(sheet.headers)
 
                 sheet_extractions = parse_rows_with_mapping(sheet, mapping)
@@ -218,7 +221,9 @@ async def process_document_sync(
         for ext_schema in extractions_to_persist:
             ext_record = Extraction(
                 document_id=document.id,
-                invoice_number=ext_schema.invoice_number.value if ext_schema.invoice_number else None,
+                invoice_number=ext_schema.invoice_number.value
+                if ext_schema.invoice_number
+                else None,
                 invoice_date=ext_schema.invoice_date.as_date() if ext_schema.invoice_date else None,
                 supplier_name=ext_schema.supplier_name.value if ext_schema.supplier_name else None,
                 customer_name=ext_schema.customer_name.value if ext_schema.customer_name else None,

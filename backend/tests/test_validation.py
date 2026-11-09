@@ -129,6 +129,7 @@ def test_low_confidence_flagged():
 @pytest.mark.asyncio
 async def test_exact_duplicate_detection(db_session: AsyncSession):
     from datetime import date
+
     # Existing invoice in database
     doc1 = Document(
         id=uuid.uuid4(),
@@ -175,6 +176,7 @@ async def test_exact_duplicate_detection(db_session: AsyncSession):
 @pytest.mark.asyncio
 async def test_fuzzy_duplicate_detection(db_session: AsyncSession):
     from datetime import date
+
     # Existing invoice in database
     doc1 = Document(
         id=uuid.uuid4(),

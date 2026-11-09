@@ -1,0 +1,2 @@
+invoice_num,inv_date,supplier,subtotal,tax_amount,total_amt,curr
+INV-2025-CSV-005,2025-03-15,CSV Data Supplier 5 Corp,300.00,30.00,330.00,USD

@@ -73,7 +73,9 @@ def test_verify_extraction_grounding_penalizes_hallucinations():
     raw_text = "Acme Supplies Inc.\nInvoice: INV-9901\nTotal: $500.00"
     extraction = InvoiceExtractionSchema(
         invoice_number=StringEvidence(value="INV-9901", confidence=0.95, source_snippet="INV-9901"),
-        supplier_name=StringEvidence(value="Acme Supplies Inc.", confidence=0.95, source_snippet="Acme Supplies Inc."),
+        supplier_name=StringEvidence(
+            value="Acme Supplies Inc.", confidence=0.95, source_snippet="Acme Supplies Inc."
+        ),
         customer_name=StringEvidence(
             value="Hallucinated Corp",
             confidence=0.90,
@@ -145,7 +147,9 @@ async def test_gemini_client_retries_on_invalid_json():
 
 
 @pytest.mark.asyncio
-@pytest.mark.skipif(not os.getenv("GEMINI_API_KEY"), reason="Live Gemini test skipped (no GEMINI_API_KEY set)")
+@pytest.mark.skipif(
+    not os.getenv("GEMINI_API_KEY"), reason="Live Gemini test skipped (no GEMINI_API_KEY set)"
+)
 async def test_gemini_live_smoke():
     """Optional live Gemini smoke test verifying actual SDK call when API key is provided."""
     client = GeminiLLMClient()

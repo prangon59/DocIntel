@@ -153,18 +153,30 @@ async def apply_manual_correction(
     extracted_schema = InvoiceExtractionSchema(
         invoice_number=StringEvidence(value=ext.invoice_number, confidence=1.0),
         supplier_name=StringEvidence(value=ext.supplier_name, confidence=1.0),
-        customer_name=StringEvidence(value=ext.customer_name, confidence=1.0) if ext.customer_name else None,
-        invoice_date=DateEvidence(value=ext.invoice_date.isoformat(), confidence=1.0) if ext.invoice_date else None,
-        subtotal=DecimalEvidence(value=ext.subtotal, confidence=1.0) if ext.subtotal is not None else None,
+        customer_name=StringEvidence(value=ext.customer_name, confidence=1.0)
+        if ext.customer_name
+        else None,
+        invoice_date=DateEvidence(value=ext.invoice_date.isoformat(), confidence=1.0)
+        if ext.invoice_date
+        else None,
+        subtotal=DecimalEvidence(value=ext.subtotal, confidence=1.0)
+        if ext.subtotal is not None
+        else None,
         tax=DecimalEvidence(value=ext.tax, confidence=1.0) if ext.tax is not None else None,
         total=DecimalEvidence(value=ext.total, confidence=1.0) if ext.total is not None else None,
         currency=StringEvidence(value=ext.currency or "USD", confidence=1.0),
         line_items=[
             ExtractedLineItem(
                 description=StringEvidence(value=item.description, confidence=1.0),
-                quantity=DecimalEvidence(value=item.quantity, confidence=1.0) if item.quantity is not None else None,
-                unit_price=DecimalEvidence(value=item.unit_price, confidence=1.0) if item.unit_price is not None else None,
-                line_total=DecimalEvidence(value=item.line_total, confidence=1.0) if item.line_total is not None else None,
+                quantity=DecimalEvidence(value=item.quantity, confidence=1.0)
+                if item.quantity is not None
+                else None,
+                unit_price=DecimalEvidence(value=item.unit_price, confidence=1.0)
+                if item.unit_price is not None
+                else None,
+                line_total=DecimalEvidence(value=item.line_total, confidence=1.0)
+                if item.line_total is not None
+                else None,
                 confidence=1.0,
             )
             for item in ext.line_items
@@ -173,7 +185,9 @@ async def apply_manual_correction(
     )
 
     val_report = validate_extracted_invoice(extracted_schema, tolerance=settings.MATH_TOLERANCE)
-    dup_issues = await detect_duplicate_invoices(extracted_schema, current_document_id=doc.id, db=db)
+    dup_issues = await detect_duplicate_invoices(
+        extracted_schema, current_document_id=doc.id, db=db
+    )
 
     all_issues = list(val_report.issues) + list(dup_issues)
     needs_review = val_report.needs_review or bool(dup_issues)

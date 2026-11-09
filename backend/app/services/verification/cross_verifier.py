@@ -48,9 +48,13 @@ async def verify_document_pair(
     doc_b = (await db.execute(stmt_b)).scalar_one_or_none()
 
     if not doc_a:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Document {doc_a_id} not found.")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=f"Document {doc_a_id} not found."
+        )
     if not doc_b:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Document {doc_b_id} not found.")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=f"Document {doc_b_id} not found."
+        )
 
     ext_a = doc_a.extractions[0] if doc_a.extractions else None
     ext_b = doc_b.extractions[0] if doc_b.extractions else None
@@ -73,10 +77,14 @@ async def verify_document_pair(
 
     # Check key matching criteria (invoice number and supplier)
     inv_matches = norm_inv_a and norm_inv_b and (norm_inv_a == norm_inv_b)
-    sup_similarity = fuzz.token_sort_ratio(norm_sup_a, norm_sup_b) if norm_sup_a and norm_sup_b else 0
+    sup_similarity = (
+        fuzz.token_sort_ratio(norm_sup_a, norm_sup_b) if norm_sup_a and norm_sup_b else 0
+    )
     sup_matches = sup_similarity >= 75 or (not norm_sup_a and not norm_sup_b)
 
-    matched = bool(inv_matches or (sup_matches and ext_a.total is not None and ext_a.total == ext_b.total))
+    matched = bool(
+        inv_matches or (sup_matches and ext_a.total is not None and ext_a.total == ext_b.total)
+    )
 
     if not matched:
         return CrossVerificationReport(
@@ -191,7 +199,7 @@ async def verify_document_pair(
                         value_b=str(item_b.line_total),
                         severity="ERROR",
                         message=(
-                            f"Line item {idx+1} total mismatch: '{item_a.description}' ({item_a.line_total}) vs "
+                            f"Line item {idx + 1} total mismatch: '{item_a.description}' ({item_a.line_total}) vs "
                             f"'{item_b.description}' ({item_b.line_total})."
                         ),
                     )
@@ -238,12 +246,9 @@ async def find_and_verify_counterparts(
         return []
 
     # Query other documents with matching invoice number
-    stmt_candidates = (
-        select(Extraction)
-        .where(
-            Extraction.document_id != document_id,
-            Extraction.invoice_number == inv_num,
-        )
+    stmt_candidates = select(Extraction).where(
+        Extraction.document_id != document_id,
+        Extraction.invoice_number == inv_num,
     )
     candidates = (await db.execute(stmt_candidates)).scalars().all()
 
