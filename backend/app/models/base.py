@@ -1,10 +1,13 @@
 """Base database model classes with common audit columns."""
+
 import uuid
 from datetime import UTC, datetime
 
 from sqlalchemy import DateTime
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
+
+from app.core.database import Base
 
 
 class TimestampMixin:
@@ -31,3 +34,6 @@ class UUIDPrimaryKeyMixin:
         primary_key=True,
         default=uuid.uuid4,
     )
+
+
+__all__ = ["Base", "TimestampMixin", "UUIDPrimaryKeyMixin"]

@@ -1,4 +1,5 @@
 """Main FastAPI application entrypoint."""
+
 import time
 import uuid
 from collections.abc import AsyncGenerator

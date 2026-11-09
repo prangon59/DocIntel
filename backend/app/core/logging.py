@@ -1,4 +1,5 @@
 """Structured logging and request context utilities."""
+
 import logging
 import sys
 from contextvars import ContextVar

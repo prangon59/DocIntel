@@ -1,4 +1,5 @@
 """Health check and API routing tests."""
+
 import pytest
 from httpx import AsyncClient
 

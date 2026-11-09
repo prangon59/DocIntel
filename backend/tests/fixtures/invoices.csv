@@ -1,0 +1,4 @@
+Invoice Number,Supplier,Date,Total,Currency
+INV-CSV-101,Office Depot Inc,2024-06-01,129.50,USD
+INV-CSV-102,Apex Hardware Ltd,2024-06-05,450.00,USD
+INV-CSV-103,Metro Courier Services,2024-06-08,75.25,USD

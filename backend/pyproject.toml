@@ -48,7 +48,7 @@ target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]
-ignore = ["B008"]
+ignore = ["B008", "E501"]
 
 [tool.mypy]
 python_version = "3.12"
@@ -56,6 +56,25 @@ strict = false
 ignore_missing_imports = true
 disable_error_code = ["import-untyped"]
 plugins = ["pydantic.mypy"]
+
+[[tool.mypy.overrides]]
+module = [
+    "openpyxl",
+    "openpyxl.*",
+    "pandas",
+    "pandas.*",
+    "pytesseract",
+    "pytesseract.*",
+    "fitz",
+    "fitz.*",
+    "cv2",
+    "cv2.*",
+    "pgvector",
+    "pgvector.*",
+    "celery",
+    "celery.*",
+]
+ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

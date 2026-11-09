@@ -1,4 +1,5 @@
 """Database connection and session factory module using Async SQLAlchemy."""
+
 from collections.abc import AsyncGenerator
 
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
@@ -9,6 +10,7 @@ from app.core.config import settings
 
 class Base(DeclarativeBase):
     """Base declarative class for all SQLAlchemy ORM models."""
+
     pass
 
 

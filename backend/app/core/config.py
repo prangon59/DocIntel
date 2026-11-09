@@ -1,4 +1,5 @@
 """Application configuration module using pydantic-settings."""
+
 from decimal import Decimal
 
 from pydantic import Field
