@@ -1,0 +1,64 @@
+[build-system]
+requires = ["setuptools>=65.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "doc-intel-backend"
+version = "0.1.0"
+description = "AI-Powered Document Intelligence System Backend"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.32.0",
+    "pydantic>=2.10.0",
+    "pydantic-settings>=2.7.0",
+    "sqlalchemy>=2.0.36",
+    "asyncpg>=0.30.0",
+    "psycopg2-binary>=2.9.10",
+    "alembic>=1.14.0",
+    "pgvector>=0.3.6",
+    "celery>=5.4.0",
+    "redis>=5.2.1",
+    "pymupdf>=1.25.0",
+    "pytesseract>=0.3.13",
+    "opencv-python-headless>=4.10.0.84",
+    "pillow>=11.0.0",
+    "pandas>=2.2.3",
+    "openpyxl>=3.1.5",
+    "xlrd>=2.0.1",
+    "filetype>=1.2.0",
+    "python-multipart>=0.0.20",
+    "google-genai>=1.0.0",
+    "rapidfuzz>=3.11.0",
+    "httpx>=0.28.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3.4",
+    "pytest-asyncio>=0.25.0",
+    "pytest-mock>=3.14.0",
+    "ruff>=0.8.4",
+    "mypy>=1.14.0",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+ignore = ["B008"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = false
+ignore_missing_imports = true
+disable_error_code = ["import-untyped"]
+plugins = ["pydantic.mypy"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["tests"]
+python_files = "test_*.py"
