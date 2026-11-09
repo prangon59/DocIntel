@@ -47,6 +47,19 @@ def mock_celery_and_redis(monkeypatch: pytest.MonkeyPatch) -> None:
     )
 
 
+@pytest.fixture(autouse=True)
+def mock_external_ai_services_by_default() -> None:
+    """Ensure standard unit tests use deterministic mock AI services to avoid quota exhaustion."""
+    from app.services.extraction import MockLLMClient, set_llm_client
+    from app.services.search.embedder import MockEmbedder, set_embedder
+
+    set_llm_client(MockLLMClient())
+    set_embedder(MockEmbedder(dimensions=768))
+    yield
+    set_llm_client(None)
+    set_embedder(None)
+
+
 @pytest.fixture(scope="function", autouse=True)
 async def setup_test_db() -> AsyncGenerator[None, None]:
     """Create and drop all database tables per test."""

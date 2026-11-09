@@ -1,6 +1,6 @@
 """LLM information extraction service and factory."""
 
-from app.services.extraction.client import LLMClient
+from app.services.extraction.client import LLMClient, MockLLMClient
 from app.services.extraction.gemini_client import GeminiLLMClient
 
 _default_client: LLMClient | None = None
@@ -20,4 +20,4 @@ def set_llm_client(client: LLMClient | None) -> None:
     _default_client = client
 
 
-__all__ = ["LLMClient", "GeminiLLMClient", "get_llm_client", "set_llm_client"]
+__all__ = ["LLMClient", "MockLLMClient", "GeminiLLMClient", "get_llm_client", "set_llm_client"]

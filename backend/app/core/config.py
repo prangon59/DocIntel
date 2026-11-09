@@ -2,7 +2,7 @@
 
 from decimal import Decimal
 
-from pydantic import Field
+from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -23,10 +23,28 @@ class Settings(BaseSettings):
 
     # Security & Keys
     GEMINI_API_KEY: str = Field(default="", description="Google Gemini API key")
-    GEMINI_MODEL: str = Field(default="gemini-2.5-flash", description="Gemini model name")
-    EMBEDDING_MODEL: str = Field(default="text-embedding-004", description="Embedding model name")
+    LLM_MODEL: str = Field(default="gemini-3.5-flash", description="Primary LLM model name")
+    GEMINI_MODEL: str = Field(default="gemini-3.5-flash", description="Gemini model name")
+    EMBEDDING_MODEL: str = Field(default="gemini-embedding-001", description="Embedding model name")
     EMBEDDING_DIMENSIONS: int = Field(default=768, description="Dimensions for vector embeddings")
     LLM_TIMEOUT_SECONDS: float = Field(default=30.0, description="Timeout for LLM API calls")
+    LLM_MAX_REQUESTS_PER_MINUTE: int = Field(
+        default=10, description="Max requests per minute allowed to LLM"
+    )
+    LLM_CONCURRENCY_LIMIT: int = Field(
+        default=2, description="Maximum concurrent active requests to LLM"
+    )
+    LLM_CACHE_DIR: str = Field(
+        default="eval/.cache", description="Directory to cache LLM responses"
+    )
+
+    @model_validator(mode="after")
+    def sync_model_names(self) -> "Settings":
+        if self.LLM_MODEL and self.LLM_MODEL != "gemini-3.5-flash" and self.GEMINI_MODEL == "gemini-3.5-flash":
+            self.GEMINI_MODEL = self.LLM_MODEL
+        elif self.GEMINI_MODEL and self.GEMINI_MODEL != "gemini-3.5-flash" and self.LLM_MODEL == "gemini-3.5-flash":
+            self.LLM_MODEL = self.GEMINI_MODEL
+        return self
 
     # Databases
     DATABASE_URL: str = Field(

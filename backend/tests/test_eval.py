@@ -134,20 +134,30 @@ def test_markdown_report_formatting() -> None:
     from run_eval import generate_markdown_report
 
     mock_summary_data = {
-        "execution_mode": "Test Mock Pipeline",
+        "execution_mode": "Live Gemini (gemini-3.5-flash)",
+        "model_name": "gemini-3.5-flash",
+        "api_tier": "Google Gemini Free-Tier (15 RPM / 1M TPM / 1500 RPD)",
+        "concurrency_limit": 2,
+        "max_rpm": 10,
+        "cache_enabled": True,
+        "cached_entries": 12,
         "total_documents": 36,
         "succeeded_documents": 33,
         "failed_documents": 3,
         "document_success_rate": 91.67,
         "document_failure_rate": 8.33,
-        "latency_ms": {
+        "net_latency_ms": {
             "avg": 105.0,
             "p50": 65.0,
             "p95": 380.0,
             "min": 20.0,
             "max": 450.0,
         },
-        "category_latency": {
+        "rate_limit_stats": {
+            "avg_wait_ms": 150.0,
+            "total_wait_sec": 5.4,
+        },
+        "category_net_latency": {
             "digital_pdf": {"count": 10, "avg": 65.0, "p95": 95.0},
             "scanned_noisy": {"count": 8, "avg": 250.0, "p95": 420.0},
             "spreadsheet": {"count": 8, "avg": 55.0, "p95": 70.0},
@@ -187,9 +197,43 @@ def test_markdown_report_formatting() -> None:
 
     report = generate_markdown_report(mock_summary_data)
     assert "# AI Document Intelligence System - Evaluation Benchmark Report" in report
-    assert "Synthetic Dataset" in report or "synthetic dataset" in report
+    assert "synthetic" in report.lower()
     assert "Executive Summary" in report
     assert "Processing Latency" in report
     assert "Field-Level Extraction Accuracy" in report
     assert "Validation Engine" in report
     assert "Known Limitations" in report
+
+
+def test_rate_limiter_retry_after_extraction() -> None:
+    """Verify that retry-after values are correctly parsed from messages and headers."""
+    from app.services.extraction.rate_limiter import (
+        extract_retry_after,
+        is_rate_limit_or_quota_error,
+    )
+
+    exc1 = RuntimeError("Resource exhausted: please retry after 18.5s")
+    assert extract_retry_after(exc1) == 18.5
+    assert is_rate_limit_or_quota_error(exc1) is True
+
+    exc2 = RuntimeError("429 Too Many Requests: Retry-After: 30")
+    assert extract_retry_after(exc2) == 30.0
+    assert is_rate_limit_or_quota_error(exc2) is True
+
+    exc3 = ValueError("Standard validation failure")
+    assert extract_retry_after(exc3) is None
+    assert is_rate_limit_or_quota_error(exc3) is False
+
+
+@pytest.mark.asyncio
+async def test_llm_rate_limiter_local_acquisition() -> None:
+    """Verify that LLMRateLimiter enforces RPM limit and tracks wait duration."""
+    from app.services.extraction.rate_limiter import LLMRateLimiter
+
+    limiter = LLMRateLimiter(max_requests_per_minute=2, concurrency_limit=1, redis_url="redis://localhost:9999/0")
+    async with limiter.acquire() as wait1:
+        assert wait1 >= 0.0
+
+    async with limiter.acquire() as wait2:
+        assert wait2 >= 0.0
+

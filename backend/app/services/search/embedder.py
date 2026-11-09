@@ -3,12 +3,19 @@
 import asyncio
 import hashlib
 import math
+import random
 from abc import ABC, abstractmethod
 
 from google import genai
+from google.genai import types
 
 from app.core.config import settings
 from app.core.logging import logger
+from app.services.extraction.rate_limiter import (
+    extract_retry_after,
+    get_llm_rate_limiter,
+    is_rate_limit_or_quota_error,
+)
 
 
 class Embedder(ABC):
@@ -69,31 +76,61 @@ class GeminiEmbedder(Embedder):
         return batch_result[0] if batch_result else [0.0] * settings.EMBEDDING_DIMENSIONS
 
     async def embed_batch(self, texts: list[str]) -> list[list[float]]:
-        """Embed multiple strings concurrently or in batch."""
+        """Embed multiple strings concurrently or in batch with rate limiting and backoff."""
         clean_texts = [t.strip() for t in texts if t.strip()]
         if not clean_texts:
             return [[0.0] * settings.EMBEDDING_DIMENSIONS for _ in texts]
 
         client = self._get_client()
+        rate_limiter = get_llm_rate_limiter()
 
-        try:
-            response = await asyncio.wait_for(
-                asyncio.to_thread(
-                    client.models.embed_content,
-                    model=self.model_name,
-                    contents=clean_texts,  # type: ignore[arg-type]
-                ),
-                timeout=self.timeout_seconds,
-            )
+        embed_config = (
+            types.EmbedContentConfig(output_dimensionality=settings.EMBEDDING_DIMENSIONS)
+            if "gemini-embedding-001" in self.model_name
+            else None
+        )
 
-            if not response.embeddings:
-                raise ValueError("No embeddings returned by Gemini embed_content API.")
+        max_retries = 5
+        last_error: Exception | None = None
 
-            return [list(emb.values or []) for emb in response.embeddings]
+        for attempt in range(1, max_retries + 1):
+            try:
+                async with rate_limiter.acquire():
+                    response = await asyncio.wait_for(
+                        asyncio.to_thread(
+                            client.models.embed_content,
+                            model=self.model_name,
+                            contents=clean_texts,  # type: ignore[arg-type]
+                            config=embed_config,
+                        ),
+                        timeout=self.timeout_seconds,
+                    )
 
-        except Exception as exc:
-            logger.warning("Gemini embedding generation failed: %s", exc)
-            raise
+                if not response.embeddings:
+                    raise ValueError("No embeddings returned by Gemini embed_content API.")
+
+                return [list(emb.values or []) for emb in response.embeddings]
+
+            except Exception as exc:
+                last_error = exc
+                if is_rate_limit_or_quota_error(exc):
+                    retry_after = extract_retry_after(exc)
+                    delay = (3.0 * (2 ** (attempt - 1))) + random.uniform(0.5, 1.5)
+                    if retry_after is not None:
+                        delay = max(delay, retry_after + random.uniform(0.5, 1.0))
+                    logger.warning(
+                        "Attempt %d/%d: Embedding rate limit hit; backing off %.1fs",
+                        attempt,
+                        max_retries,
+                        delay,
+                    )
+                    await asyncio.sleep(delay)
+                else:
+                    logger.warning("Attempt %d/%d: Gemini embedding failed: %s", attempt, max_retries, exc)
+                    if attempt < max_retries:
+                        await asyncio.sleep(1.5 * attempt)
+
+        raise RuntimeError(f"Embedding failed after {max_retries} attempts: {last_error}")
 
 
 class MockEmbedder(Embedder):

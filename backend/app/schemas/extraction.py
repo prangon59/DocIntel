@@ -69,8 +69,8 @@ class ExtractedLineItem(BaseModel):
     confidence: float = Field(default=1.0, ge=0.0, le=1.0)
 
 
-class InvoiceExtractionSchema(BaseModel):
-    """Complete structured invoice schema according to docs/SPEC.md."""
+class InvoiceLLMResponseSchema(BaseModel):
+    """Structured LLM extraction schema without internal dictionary metadata."""
 
     model_config = ConfigDict(extra="ignore")
 
@@ -84,6 +84,11 @@ class InvoiceExtractionSchema(BaseModel):
     currency: StringEvidence | None = None
     line_items: list[ExtractedLineItem] = Field(default_factory=list)
     overall_confidence: float = Field(default=0.0, ge=0.0, le=1.0)
+
+
+class InvoiceExtractionSchema(InvoiceLLMResponseSchema):
+    """Complete structured invoice schema according to docs/SPEC.md."""
+
     raw_response: dict[str, Any] | None = Field(default=None)
 
 
