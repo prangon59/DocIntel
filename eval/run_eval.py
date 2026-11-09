@@ -625,24 +625,45 @@ def generate_markdown_report(data: dict[str, Any]) -> str:
         "> **Honesty Guarantee**: All metrics below were computed directly by running `eval/run_eval.py`.",
         "> No numbers have been fabricated or manually altered.",
         "",
-        "## 1. Executive Summary",
-        "",
-        f"- **Total Documents Processed**: {total}",
-        f"- **Documents Successfully Processed**: {succ} ({succ_rate}%)",
-        f"- **Documents Rejected / Failed**: {fail} ({fail_rate}%) *(Cleanly rejected corrupted/unsupported binaries without crashing)*",
-        f"- **Average Processing Latency**: {lat['avg']:.1f} ms",
-        f"- **Median (P50) Latency**: {lat['p50']:.1f} ms",
-        f"- **95th Percentile (P95) Latency**: {lat['p95']:.1f} ms",
-        f"- **Validation Flag Precision / Recall**: {vm['precision']:.1f}% / {vm['recall']:.1f}% (F1: {vm['f1']:.1f}%)",
-        f"- **Needs-Review Decision Accuracy**: {vm['needs_review_accuracy']:.1f}%",
-        "",
-        "---",
-        "",
-        "## 2. Processing Latency & Throughput",
-        "",
-        "| Document Category | Count | Average Latency (ms) | P95 Latency (ms) |",
-        "| :--- | :---: | :---: | :---: |",
     ]
+
+    if "Offline" in mode:
+        lines.extend(
+            [
+                "> [!WARNING]",
+                "> **LLM Client Execution Disclosure**: This benchmark run was executed using the **`OfflineEvalLLMClient` regex fallback**",
+                "> because `GEMINI_API_KEY` was not set in the host environment. Every document in this run was evaluated using offline extractors:",
+                "> - **17 Digital PDFs & PDF edge cases**: PyMuPDF text extraction + regex parsing fallback.",
+                "> - **8 Spreadsheets (XLSX / CSV)**: Deterministic openpyxl / csv parsing + heuristic column mapping.",
+                "> - **8 Scanned Documents & Images**: OpenCV deskew/denoise + OCR fallback (empty text on host without Tesseract binary).",
+                "> - **3 Corrupted Binaries**: Magic-byte sniffing & PDF inspection rejection.",
+                ">",
+                "> **Live Gemini Evaluation**: Set `GEMINI_API_KEY=your_key` in `.env` and re-run `python eval/run_eval.py` to evaluate against live Gemini 2.5 Flash.",
+                "",
+            ]
+        )
+
+    lines.extend(
+        [
+            "## 1. Executive Summary",
+            "",
+            f"- **Total Documents Processed**: {total}",
+            f"- **Documents Successfully Processed**: {succ} ({succ_rate}%)",
+            f"- **Documents Rejected / Failed**: {fail} ({fail_rate}%) *(Cleanly rejected corrupted/unsupported binaries without crashing)*",
+            f"- **Average Processing Latency**: {lat['avg']:.1f} ms",
+            f"- **Median (P50) Latency**: {lat['p50']:.1f} ms",
+            f"- **95th Percentile (P95) Latency**: {lat['p95']:.1f} ms",
+            f"- **Validation Flag Precision / Recall**: {vm['precision']:.1f}% / {vm['recall']:.1f}% (F1: {vm['f1']:.1f}%)",
+            f"- **Needs-Review Decision Accuracy**: {vm['needs_review_accuracy']:.1f}%",
+            "",
+            "---",
+            "",
+            "## 2. Processing Latency & Throughput",
+            "",
+            "| Document Category | Count | Average Latency (ms) | P95 Latency (ms) |",
+            "| :--- | :---: | :---: | :---: |",
+        ]
+    )
 
     category_names = {
         "digital_pdf": "Digital Vector PDFs",
