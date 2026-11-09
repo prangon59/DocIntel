@@ -1,12 +1,15 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { Providers } from "@/components/layout/providers";
+import { Navbar } from "@/components/layout/navbar";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "AI Document Intelligence System",
-  description: "Enterprise document ingestion, extraction, validation, and search.",
+  description:
+    "Enterprise AI document ingestion, OCR, Gemini extraction, financial validation, and cross-document verification.",
 };
 
 export default function RootLayout({
@@ -17,28 +20,15 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className={inter.className}>
-        <div className="min-h-screen bg-background text-foreground flex flex-col">
-          <header className="border-b border-border px-6 py-4 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-lg tracking-tight">DocIntel</span>
-              <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full font-medium">
-                Phase 0
-              </span>
-            </div>
-            <nav className="flex items-center gap-4 text-sm text-muted-foreground">
-              <a href="/documents" className="hover:text-foreground transition-colors">
-                Documents
-              </a>
-              <a href="/search" className="hover:text-foreground transition-colors">
-                Search
-              </a>
-              <a href="/crossverify" className="hover:text-foreground transition-colors">
-                Cross-Verify
-              </a>
-            </nav>
-          </header>
-          <main className="flex-1">{children}</main>
-        </div>
+        <Providers>
+          <div className="min-h-screen bg-background text-foreground flex flex-col antialiased">
+            <Navbar />
+            <main className="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 lg:p-8">{children}</main>
+            <footer className="border-t border-border/60 py-4 px-6 text-center text-xs text-muted-foreground">
+              DocIntel AI Document Intelligence System &bull; Production Architecture &bull; Next.js 14 App Router
+            </footer>
+          </div>
+        </Providers>
       </body>
     </html>
   );
