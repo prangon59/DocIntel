@@ -11,6 +11,7 @@ from app.core.config import settings
 from app.core.database import get_db_session
 from app.core.logging import logger
 from app.models.document import Document, DocumentStatus
+from app.models.extraction import Extraction
 from app.schemas.document import (
     DocumentDetailResponse,
     DocumentListResponse,
@@ -282,7 +283,7 @@ async def get_document_result(
     stmt = (
         select(Document)
         .options(
-            selectinload(Document.extractions),
+            selectinload(Document.extractions).selectinload(Extraction.line_items),
             selectinload(Document.validation_issues),
         )
         .where(Document.id == document_id)
@@ -294,12 +295,16 @@ async def get_document_result(
             detail=f"Document with ID {document_id} not found.",
         )
 
-    return {
-        "document_id": str(doc.id),
-        "filename": doc.filename,
-        "status": doc.status.value,
-        "needs_review": doc.needs_review,
-        "extractions": [
+    extractions_list = []
+    for ext in doc.extractions:
+        field_confidences: dict[str, float] = {}
+        if ext.raw_llm_payload and isinstance(ext.raw_llm_payload, dict):
+            for f in ["invoice_number", "invoice_date", "supplier_name", "customer_name", "subtotal", "tax", "total", "currency"]:
+                val = ext.raw_llm_payload.get(f)
+                if isinstance(val, dict) and "confidence" in val and val["confidence"] is not None:
+                    field_confidences[f] = float(val["confidence"])
+
+        extractions_list.append(
             {
                 "id": str(ext.id),
                 "invoice_number": ext.invoice_number,
@@ -311,9 +316,28 @@ async def get_document_result(
                 "total": str(ext.total) if ext.total is not None else None,
                 "currency": ext.currency,
                 "confidence": ext.overall_confidence,
+                "confidence_scores": field_confidences,
+                "line_items": [
+                    {
+                        "id": str(li.id),
+                        "description": li.description,
+                        "quantity": str(li.quantity) if li.quantity is not None else None,
+                        "unit_price": str(li.unit_price) if li.unit_price is not None else None,
+                        "line_total": str(li.line_total) if li.line_total is not None else None,
+                        "confidence": li.confidence,
+                    }
+                    for li in ext.line_items
+                ],
             }
-            for ext in doc.extractions
-        ],
+        )
+
+    return {
+        "document_id": str(doc.id),
+        "filename": doc.filename,
+        "status": doc.status.value,
+        "needs_review": doc.needs_review,
+        "extraction": extractions_list[0] if extractions_list else None,
+        "extractions": extractions_list,
         "validation_issues": [
             {
                 "id": str(issue.id),

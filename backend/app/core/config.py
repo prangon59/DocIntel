@@ -23,6 +23,8 @@ class Settings(BaseSettings):
 
     # Security & Keys
     GEMINI_API_KEY: str = Field(default="", description="Google Gemini API key")
+    GEMINI_MODEL: str = Field(default="gemini-2.5-flash", description="Gemini model name")
+    LLM_TIMEOUT_SECONDS: float = Field(default=30.0, description="Timeout for LLM API calls")
 
     # Databases
     DATABASE_URL: str = Field(

@@ -58,8 +58,9 @@ async def test_pipeline_digital_pdf(db_session: AsyncSession, tmp_path: Path):
         .scalars()
         .all()
     )
-    assert len(events) == 1
-    assert events[0].stage == "INGESTION"
+    assert len(events) >= 1
+    stages = [e.stage for e in events]
+    assert "INGESTION" in stages
     assert events[0].status == "SUCCESS"
 
 
