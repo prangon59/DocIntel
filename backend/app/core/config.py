@@ -1,8 +1,9 @@
 """Application configuration module using pydantic-settings."""
 
 from decimal import Decimal
+from typing import Any
 
-from pydantic import Field, model_validator
+from pydantic import Field, ValidationInfo, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -15,6 +16,17 @@ class Settings(BaseSettings):
         case_sensitive=True,
         extra="ignore",
     )
+
+    @field_validator("*", mode="before")
+    @classmethod
+    def empty_strings_to_default(cls, v: Any, info: ValidationInfo) -> Any:
+        """Coerce empty environment variable strings to field default values."""
+        if isinstance(v, str) and not v.strip() and info.field_name:
+            field = cls.model_fields.get(info.field_name)
+            if field and field.default is not ...:
+                return field.default
+        return v
+
 
     PROJECT_NAME: str = "AI Document Intelligence System"
     API_V1_PREFIX: str = "/api/v1"
